@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask.ext.sqlalchemy import SQLAlchemy
 import json
 from flask.ext.cors import CORS
@@ -65,6 +65,28 @@ def get_todo(todo_id):
             'is_done' : todo.is_done
             }
     return jsonify(todo=result)
+
+@app.route('/api/v1/todos/<int:todo_id>', methods=['PUT', 'UPDATE'])
+def update_todo(todo_id):
+    title   = request.get_json()['todo']['title'  ]
+    body    = request.get_json()['todo']['body'   ]
+    is_done = request.get_json()['todo']['is_done']
+    
+    todo = Todo.query.get(todo_id)
+    todo.title   = title
+    todo.body    = body
+    todo.is_done = is_done
+
+    db.session.commit()
+
+    result = {
+            'id'      : todo.id,
+            'title'   : todo.title,
+            'body'    : todo.body,
+            'is_done' : todo.is_done
+            }
+    return jsonify(todo=result)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
