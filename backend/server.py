@@ -30,7 +30,12 @@ def hello():
 
 @app.route('/api/v1/add_random_todo', methods=["GET"])
 def add_random_todo():
-    new_todo = Todo("Title", "Body", False)
+    import string
+    import random
+
+    rand_string1 = ''.join(random.choice(string.ascii_uppercase) for i in range(12))
+    rand_string2 = ''.join(random.choice(string.ascii_uppercase) for i in range(12))
+    new_todo = Todo(rand_string1, rand_string2, False)
     db.session.add(new_todo)
     db.session.commit()
     return "added"
@@ -47,6 +52,19 @@ def get_todos():
             'is_done' : todo.is_done
             })
     return jsonify(todos=results)
+
+@app.route('/api/v1/todos/<int:todo_id>', methods=['GET'])
+def get_todo(todo_id):
+    todo = Todo.query.get(todo_id)
+    if todo == None:
+        return "", 204
+    result = {
+            'id'      : todo.id,
+            'title'   : todo.title,
+            'body'    : todo.body,
+            'is_done' : todo.is_done
+            }
+    return jsonify(todo=result)
 
 if __name__ == "__main__":
     app.run(debug=True)
